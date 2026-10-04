@@ -2,41 +2,182 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AirBharat - Domestic Flights India</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">✈️ AirBharat India</div>
-    <div class="nav-links">
-      <a href="/">Search Flights</a>
-      <a href="/my-bookings">Manage Bookings</a>
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon">✈</span>
+        <span class="logo-text">AirBharat</span>
+        <span class="tag">Domestic</span>
+      </div>
+      <nav class="nav-links">
+        <a href="/" class="active">Search Flights</a>
+        <a href="/my-bookings">My Bookings</a>
+      </nav>
     </div>
-  </nav>
+  </header>
 
-  <div class="container">
-    <div class="card search-box">
-      <h2>Search Domestic Flights in India</h2>
+  <!-- Hero & Main Search Section -->
+  <main class="main-wrapper">
+    <div class="hero-banner">
+      <h1>Book Domestic Flights in India</h1>
+      <p>Search low-cost and full-service carriers across all major Indian airports</p>
+    </div>
+
+    <!-- Search Form Card -->
+    <div class="search-card">
       <form id="search-form">
         <div class="form-grid">
           <div class="form-group">
-            <label>From (Departure)</label>
+            <label for="origin-select">FROM (DEPARTURE)</label>
             <select id="origin-select" required></select>
           </div>
+          <div class="swap-icon" id="swap-airports" title="Swap Origin and Destination">⇄</div>
           <div class="form-group">
-            <label>To (Arrival)</label>
+            <label for="dest-select">TO (ARRIVAL)</label>
             <select id="dest-select" required></select>
           </div>
           <div class="form-group">
-            <label>Travel Date</label>
+            <label for="flight-date">DEPARTURE DATE</label>
             <input type="date" id="flight-date" required>
           </div>
         </div>
-        <button type="submit" class="btn">Search Flights</button>
+        <button type="submit" class="btn btn-search">Search Flights</button>
       </form>
     </div>
 
+    <!-- Route Overview Bar -->
+    <div id="route-summary" class="route-summary" style="display: none;"></div>
+
+    <!-- Flight Results Container -->
     <div id="results" class="results-container"></div>
+  </main>
+
+  <!-- Realtime Checkout & Payment Gateway Modal -->
+  <div id="checkout-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-flight-title">Confirm Itinerary & Payment</h3>
+          <p id="modal-route-sub" class="modal-subtitle">Flight details</p>
+        </div>
+        <button id="modal-close" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Flight Summary Box -->
+        <div class="itinerary-box">
+          <div class="itin-item">
+            <span class="itin-label">Flight</span>
+            <span id="itin-flight-num" class="itin-val">--</span>
+          </div>
+          <div class="itin-item">
+            <span class="itin-label">Schedule</span>
+            <span id="itin-schedule" class="itin-val">--</span>
+          </div>
+          <div class="itin-item">
+            <span class="itin-label">Aircraft</span>
+            <span id="itin-aircraft" class="itin-val">--</span>
+          </div>
+          <div class="itin-item fare">
+            <span class="itin-label">Total Fare</span>
+            <span id="itin-fare" class="itin-val price">₹0</span>
+          </div>
+        </div>
+
+        <form id="booking-payment-form">
+          <!-- Step 1: Passenger Details -->
+          <h4 class="section-title">1. Passenger Details</h4>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>FULL NAME (AS PER GOVT ID)</label>
+              <input type="text" id="passenger-name" placeholder="e.g. Gowtham Naidu" required>
+            </div>
+            <div class="form-group flex-1">
+              <label>EMAIL ADDRESS</label>
+              <input type="email" id="passenger-email" placeholder="e.g. gowtham@example.com" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>CONTACT NUMBER</label>
+              <input type="tel" id="passenger-phone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-group flex-1">
+              <label>GENDER</label>
+              <select id="passenger-gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 2: Payment Gateway Selection -->
+          <h4 class="section-title">2. Select Payment Method</h4>
+          <div class="payment-tabs">
+            <label class="payment-option selected">
+              <input type="radio" name="payment-method" value="UPI" checked>
+              <span class="tab-label">⚡ UPI (GPay / PhonePe / Paytm)</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment-method" value="Card">
+              <span class="tab-label">💳 Credit / Debit Card</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment-method" value="NetBanking">
+              <span class="tab-label">🏦 Net Banking</span>
+            </label>
+          </div>
+
+          <!-- Dynamic Payment Fields -->
+          <div id="upi-details" class="payment-details-box">
+            <label>ENTER UPI ID (VPA)</label>
+            <input type="text" id="upi-id" placeholder="yourname@okaxis or mobile@upi">
+            <span class="help-text">Instant verification via UPI Intent / Push notification</span>
+          </div>
+
+          <div id="card-details" class="payment-details-box" style="display: none;">
+            <div class="form-group">
+              <label>CARD NUMBER</label>
+              <input type="text" id="card-num" placeholder="XXXX XXXX XXXX XXXX" maxlength="19">
+            </div>
+            <div class="form-row" style="margin-top: 10px;">
+              <div class="form-group flex-1">
+                <label>VALID THRU</label>
+                <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
+              </div>
+              <div class="form-group flex-1">
+                <label>CVV</label>
+                <input type="password" id="card-cvv" placeholder="•••" maxlength="3">
+              </div>
+            </div>
+          </div>
+
+          <div id="netbanking-details" class="payment-details-box" style="display: none;">
+            <label>SELECT POPULAR BANK</label>
+            <select id="bank-select">
+              <option value="HDFC">HDFC Bank</option>
+              <option value="SBI">State Bank of India</option>
+              <option value="ICICI">ICICI Bank</option>
+              <option value="AXIS">Axis Bank</option>
+              <option value="KOTAK">Kotak Mahindra Bank</option>
+            </select>
+          </div>
+
+          <!-- Action Button -->
+          <button type="submit" id="pay-confirm-btn" class="btn btn-pay">Pay & Confirm Booking</button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <script src="/js/app.js"></script>
