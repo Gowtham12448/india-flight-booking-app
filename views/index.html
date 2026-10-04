@@ -1,1 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AirBharat - Domestic Flights India</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">✈️ AirBharat India</div>
+    <div class="nav-links">
+      <a href="/">Search Flights</a>
+      <a href="/my-bookings">Manage Bookings</a>
+    </div>
+  </nav>
 
+  <div class="container">
+    <div class="card search-box">
+      <h2>Search Domestic Flights in India</h2>
+      <form id="search-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>From (Departure)</label>
+            <select id="origin-select" required></select>
+          </div>
+          <div class="form-group">
+            <label>To (Arrival)</label>
+            <select id="dest-select" required></select>
+          </div>
+          <div class="form-group">
+            <label>Travel Date</label>
+            <input type="date" id="flight-date" required>
+          </div>
+        </div>
+        <button type="submit" class="btn">Search Flights</button>
+      </form>
+    </div>
+
+    <div id="results" class="results-container"></div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
