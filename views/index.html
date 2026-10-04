@@ -2,41 +2,275 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AirBharat - Domestic Flights India</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AirBharat - Explore Incredible India by Air</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">✈️ AirBharat India</div>
-    <div class="nav-links">
-      <a href="/">Search Flights</a>
-      <a href="/my-bookings">Manage Bookings</a>
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon">✈</span>
+        <span class="logo-text">AirBharat</span>
+        <span class="tag">Incredible India</span>
+      </div>
+      <nav class="nav-links">
+        <a href="/" class="active">Search Flights</a>
+        <a href="/my-bookings">My Bookings</a>
+      </nav>
     </div>
-  </nav>
+  </header>
 
-  <div class="container">
-    <div class="card search-box">
-      <h2>Search Domestic Flights in India</h2>
+  <!-- Hero & Tourism Banner -->
+  <main class="main-wrapper">
+    <div class="hero-banner">
+      <div class="tourism-badge">DEKHO APNA DESH 🇮🇳</div>
+      <h1>Explore Incredible India by Air</h1>
+      <p>Seamless domestic connections across 35+ cultural, heritage, and business destinations</p>
+    </div>
+
+    <!-- Search Form Card -->
+    <div class="search-card">
       <form id="search-form">
         <div class="form-grid">
           <div class="form-group">
-            <label>From (Departure)</label>
+            <label for="origin-select">FROM (DEPARTURE)</label>
             <select id="origin-select" required></select>
           </div>
+          <div class="swap-icon" id="swap-airports" title="Swap Origin and Destination">⇄</div>
           <div class="form-group">
-            <label>To (Arrival)</label>
+            <label for="dest-select">TO (ARRIVAL)</label>
             <select id="dest-select" required></select>
           </div>
           <div class="form-group">
-            <label>Travel Date</label>
+            <label for="flight-date">DEPARTURE DATE</label>
             <input type="date" id="flight-date" required>
           </div>
         </div>
-        <button type="submit" class="btn">Search Flights</button>
+        <button type="submit" class="btn btn-search">Search Flights</button>
       </form>
     </div>
 
+    <!-- Route Overview Bar -->
+    <div id="route-summary" class="route-summary" style="display: none;"></div>
+
+    <!-- Flight Results Container -->
     <div id="results" class="results-container"></div>
+  </main>
+
+  <!-- Interactive Flight Checkout Modal (Seats, Meals, Payments) -->
+  <div id="checkout-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-area">
+          <img id="modal-airline-logo" src="" alt="Airline Logo" class="modal-logo-img">
+          <div>
+            <h3 id="modal-flight-title">Flight Checkout</h3>
+            <p id="modal-route-sub" class="modal-subtitle">Flight details</p>
+          </div>
+        </div>
+        <button id="modal-close" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Live Itinerary & Add-on Price Breakdown -->
+        <div class="itinerary-box">
+          <div class="itin-item">
+            <span class="itin-label">Flight</span>
+            <span id="itin-flight-num" class="itin-val">--</span>
+          </div>
+          <div class="itin-item">
+            <span class="itin-label">Schedule</span>
+            <span id="itin-schedule" class="itin-val">--</span>
+          </div>
+          <div class="itin-item">
+            <span class="itin-label">Seat / Meal</span>
+            <span id="itin-addons" class="itin-val">None</span>
+          </div>
+          <div class="itin-item fare">
+            <span class="itin-label">Total Payable</span>
+            <span id="itin-fare" class="itin-val price">₹0</span>
+          </div>
+        </div>
+
+        <form id="booking-payment-form">
+          <!-- 1. Passenger Details -->
+          <h4 class="section-title">1. Passenger Details</h4>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>FULL NAME (AS PER GOVT ID)</label>
+              <input type="text" id="passenger-name" placeholder="UserName" required>
+            </div>
+            <div class="form-group flex-1">
+              <label>EMAIL ADDRESS</label>
+              <input type="email" id="passenger-email" placeholder="user@example.com" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>CONTACT NUMBER</label>
+              <input type="tel" id="passenger-phone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-group flex-1">
+              <label>GENDER</label>
+              <select id="passenger-gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 2. Interactive Seat Selection -->
+          <h4 class="section-title">2. Select Your Seat</h4>
+          <div class="seat-selection-card">
+            <div class="seat-legend">
+              <span><span class="legend-box available"></span> Free / Standard</span>
+              <span><span class="legend-box selected"></span> Selected</span>
+              <span><span class="legend-box premium"></span> XL / Extra Legroom (+₹450)</span>
+              <span><span class="legend-box occupied"></span> Booked</span>
+            </div>
+            <div class="aircraft-cabin">
+              <div class="cabin-label">AIRCRAFT FRONT (COCKPIT) ⬆</div>
+              <div id="seat-grid" class="seat-grid"></div>
+            </div>
+            <div class="selected-seat-badge" id="selected-seat-text">Selected Seat: <strong>None</strong></div>
+          </div>
+
+          <!-- 3. In-flight Food & Beverage Selection -->
+          <h4 class="section-title">3. In-flight Meal Selection</h4>
+          <div class="meal-options-grid">
+            <label class="meal-card selected">
+              <input type="radio" name="meal-choice" value="None" data-price="0" checked>
+              <div class="meal-info">
+                <span class="meal-name">No Meal Service</span>
+                <span class="meal-desc">Complimentary water only</span>
+              </div>
+              <span class="meal-price">Free</span>
+            </label>
+
+            <label class="meal-card">
+              <input type="radio" name="meal-choice" value="South Indian Tiffin" data-price="350">
+              <div class="meal-info">
+                <span class="meal-name">South Indian Tiffin (Veg)</span>
+                <span class="meal-desc">Steamed Idlis, Medu Vada & Sambar</span>
+              </div>
+              <span class="meal-price">+₹350</span>
+            </label>
+
+            <label class="meal-card">
+              <input type="radio" name="meal-choice" value="Paneer Tikka Meal" data-price="420">
+              <div class="meal-info">
+                <span class="meal-name">Paneer Tikka Combo (Veg)</span>
+                <span class="meal-desc">Paneer Tikka, Parathas & Dal Makhani</span>
+              </div>
+              <span class="meal-price">+₹420</span>
+            </label>
+
+            <label class="meal-card">
+              <input type="radio" name="meal-choice" value="Hyderabadi Chicken Biryani" data-price="490">
+              <div class="meal-info">
+                <span class="meal-name">Hyderabadi Chicken Biryani (Non-Veg)</span>
+                <span class="meal-desc">Aromatic Dum Biryani with Mirchi ka Salan</span>
+              </div>
+              <span class="meal-price">+₹490</span>
+            </label>
+          </div>
+
+          <!-- 4. Payment Gateway -->
+          <h4 class="section-title">4. Payment Method</h4>
+          <div class="payment-tabs">
+            <label class="payment-option selected">
+              <input type="radio" name="payment-method" value="UPI" checked>
+              <span class="tab-label">⚡ UPI (GPay / PhonePe / Paytm)</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment-method" value="Card">
+              <span class="tab-label">💳 Credit / Debit Card</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment-method" value="NetBanking">
+              <span class="tab-label">🏦 Net Banking</span>
+            </label>
+          </div>
+
+          <div id="upi-details" class="payment-details-box">
+            <label>ENTER UPI ID (VPA)</label>
+            <input type="text" id="upi-id" placeholder="user@okaxis or mobile@upi">
+            <span class="help-text">Instant OTP & push authorization</span>
+          </div>
+
+          <div id="card-details" class="payment-details-box" style="display: none;">
+            <div class="form-group">
+              <label>CARD NUMBER</label>
+              <input type="text" id="card-num" placeholder="4111 2222 3333 4444" maxlength="19">
+            </div>
+            <div class="form-row" style="margin-top: 10px;">
+              <div class="form-group flex-1">
+                <label>VALID THRU</label>
+                <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
+              </div>
+              <div class="form-group flex-1">
+                <label>CVV</label>
+                <input type="password" id="card-cvv" placeholder="•••" maxlength="3">
+              </div>
+            </div>
+          </div>
+
+          <div id="netbanking-details" class="payment-details-box" style="display: none;">
+            <label>SELECT BANK</label>
+            <select id="bank-select">
+              <option value="HDFC">HDFC Bank</option>
+              <option value="SBI">State Bank of India</option>
+              <option value="ICICI">ICICI Bank</option>
+              <option value="AXIS">Axis Bank</option>
+              <option value="KOTAK">Kotak Mahindra Bank</option>
+            </select>
+          </div>
+
+          <!-- Action Button -->
+          <button type="submit" id="pay-confirm-btn" class="btn btn-pay">Pay ₹0 & Confirm Booking</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Booking Confirmation Overlay (Replaces browser alert popup) -->
+  <div id="confirmation-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card confirmation-card">
+      <div class="success-checkmark">✓</div>
+      <h2>Booking Confirmed!</h2>
+      <p class="pnr-display">PNR: <strong id="conf-pnr">IND-XXXXXX</strong></p>
+
+      <div class="conf-details-box">
+        <div class="conf-item">
+          <span>Passenger</span>
+          <strong id="conf-name">--</strong>
+        </div>
+        <div class="conf-item">
+          <span>Flight</span>
+          <strong id="conf-flight">--</strong>
+        </div>
+        <div class="conf-item">
+          <span>Seat Allocated</span>
+          <strong id="conf-seat">--</strong>
+        </div>
+        <div class="conf-item">
+          <span>Meal Selected</span>
+          <strong id="conf-meal">--</strong>
+        </div>
+        <div class="conf-item">
+          <span>Amount Paid</span>
+          <strong id="conf-amount" style="color: #15803d;">₹0</strong>
+        </div>
+      </div>
+
+      <button id="conf-done-btn" class="btn btn-search" style="margin-top: 20px;">View in My Bookings</button>
+    </div>
   </div>
 
   <script src="/js/app.js"></script>
