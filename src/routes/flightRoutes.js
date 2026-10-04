@@ -3,9 +3,8 @@ const express = require('express');
 const router = express.Router();
 const airports = require('../data/airports');
 const airlines = require('../data/airlines');
-const routeSchedules = require('../data/flightSchedules');
 
-// Haversine calculation for exact nautical distance
+// Haversine formula: Nautical distance in kilometers
 function getGreatCircleDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -17,135 +16,190 @@ function getGreatCircleDistance(lat1, lon1, lat2, lon2) {
   return Math.round(R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))));
 }
 
-// Deterministic Pseudo-Random Generator based on Travel Date
-function getDailySeed(dateStr) {
+// Deterministic seed based on Origin, Destination, and Travel Date
+function getRouteSeed(from, to, date) {
+  const key = `${from}:${to}:${date}`;
   let hash = 0;
-  for (let i = 0; i < dateStr.length; i++) {
-    hash = (hash << 5) - hash + dateStr.charCodeAt(i);
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash << 5) - hash + key.charCodeAt(i);
     hash |= 0;
   }
   return Math.abs(hash);
+}
+
+// Pseudo-random generator using the seed
+function createPrng(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
 }
 
 router.get('/search', (req, res) => {
   const { from, to, date } = req.query;
 
   if (!from || !to || !date) {
-    return res.status(400).json({ success: false, message: 'Missing parameters: from, to, and date are required.' });
+    return res.status(400).json({ success: false, message: 'Please provide from, to, and date query parameters' });
   }
 
   const originCode = from.toUpperCase();
   const destCode = to.toUpperCase();
 
   if (originCode === destCode) {
-    return res.status(400).json({ success: false, message: 'Origin and destination airport cannot be identical.' });
+    return res.status(400).json({ success: false, message: 'Origin and destination airport cannot be identical' });
   }
 
   const origin = airports.find(a => a.code === originCode);
   const destination = airports.find(a => a.code === destCode);
 
   if (!origin || !destination) {
-    return res.status(404).json({ success: false, message: 'Airport code not recognized.' });
+    return res.status(404).json({ success: false, message: 'Invalid airport code specified' });
   }
 
   const distanceKm = getGreatCircleDistance(origin.lat, origin.lon, destination.lat, destination.lon);
-  
-  // Real flight duration = Taxi/Climb/Approach buffer (35 mins) + Cruise at 720 km/h
-  const flightDurationMins = Math.round(35 + (distanceKm / 720) * 60);
-  const durHours = Math.floor(flightDurationMins / 60);
-  const durMinutes = flightDurationMins % 60;
+
+  // Realistic flight block duration: 35 min ground taxi/climb + 720 km/h cruise
+  const durationMinutesTotal = Math.round(35 + (distanceKm / 720) * 60);
+  const durHours = Math.floor(durationMinutesTotal / 60);
+  const durMinutes = durationMinutesTotal % 60;
   const durationText = `${durHours}h ${durMinutes}m`;
 
-  const routeKey = `${originCode}-${destCode}`;
-  const dayOfWeek = new Date(date).getDay(); // 0 = Sun, 5 = Fri, 6 = Sat
-  const isWeekend = (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6);
-  const dateSeed = getDailySeed(date);
+  // Route Tier Classification
+  const isBothMetros = origin.isMetro && destination.isMetro;
+  const isOneMetro = origin.isMetro || destination.isMetro;
+  const isShortRegional = distanceKm < 850;
 
-  let rawScheduledFlights = routeSchedules[routeKey];
+  const routeSeed = getRouteSeed(originCode, destCode, date);
+  const rng = createPrng(routeSeed);
 
-  // If no static schedule exists for this pair, dynamically synthesize a realistic schedule
-  // based strictly on airline operational hubs and route distance
-  if (!rawScheduledFlights) {
-    rawScheduledFlights = [];
-    const isBothMetros = origin.isMetro && destination.isMetro;
+  const dayOfWeek = new Date(date).getDay();
+  const isWeekend = (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6); // Fri, Sat, Sun demand
+  const weekendSurge = isWeekend ? 1.15 : 1.0;
 
-    airlines.forEach((airline, idx) => {
-      let isEligible = false;
+  const flights = [];
 
-      if (airline.isPanIndia) {
-        isEligible = true;
-      } else if (airline.type === "Regional" && distanceKm < 1000) {
-        isEligible = airline.preferredHubs.includes(originCode) || airline.preferredHubs.includes(destCode);
-      } else if (airline.preferredHubs) {
-        isEligible = airline.preferredHubs.includes(originCode) && airline.preferredHubs.includes(destCode);
+  airlines.forEach((airline, aIdx) => {
+    let operatesRoute = false;
+    let frequency = 0;
+
+    // 1. Determine Airline Route Eligibility & Dynamic Frequencies
+    if (airline.networkTier === "PAN_INDIA") {
+      // IndiGo operates nationwide: Metros get 4-6, Tier-1 get 2-4, Regional gets 1-2
+      operatesRoute = true;
+      if (isBothMetros) {
+        frequency = 4 + Math.floor(rng() * 3); // 4 to 6 flights
+      } else if (isOneMetro) {
+        frequency = 2 + Math.floor(rng() * 3); // 2 to 4 flights
+      } else {
+        frequency = 1 + (rng() > 0.4 ? 1 : 0); // 1 or 2 flights
       }
-
-      if (isEligible) {
-        // High density route = 2 to 3 flights, sparse = 1 flight
-        const frequencies = isBothMetros ? (idx % 2 === 0 ? 3 : 2) : 1;
-        
-        for (let i = 0; i < frequencies; i++) {
-          const hour = (6 + (i * 5) + (idx * 2)) % 22;
-          const depMinutes = (idx * 15 + i * 20) % 60;
-          const depTime = `${String(hour).padStart(2, '0')}:${String(depMinutes).padStart(2, '0')}`;
-          const flightNumSuffix = 100 + ((dateSeed + idx * 77 + i * 33) % 899);
-
-          rawScheduledFlights.push({
-            airlineId: airline.id,
-            flightNumber: `${airline.code}-${flightNumSuffix}`,
-            depTime,
-            aircraft: airline.type === "Regional" ? "Embraer E175" : "Airbus A320neo",
-            baseFare: Math.round((airline.baseFare + (distanceKm * airline.ratePerKm)) / 50) * 50
-          });
-        }
+    } 
+    else if (airline.networkTier === "MAJOR_AND_CAPITALS") {
+      // Air India: High on Metros, present on State capitals / long sectors
+      if (isBothMetros) {
+        operatesRoute = true;
+        frequency = 3 + Math.floor(rng() * 2); // 3 to 4 flights
+      } else if (isOneMetro && distanceKm > 400) {
+        operatesRoute = rng() > 0.25;
+        frequency = operatesRoute ? (1 + (rng() > 0.5 ? 1 : 0)) : 0;
       }
-    });
-  }
-
-  // Construct real-time response with dynamic pricing and seat loads
-  const flights = rawScheduledFlights.map((item, index) => {
-    const airline = airlines.find(a => a.id === item.airlineId) || { name: item.airlineId, code: "FL" };
-    
-    // Calculate Arrival Time
-    const [depH, depM] = item.depTime.split(':').map(Number);
-    const totalDepMin = depH * 60 + depM;
-    const totalArrMin = (totalDepMin + flightDurationMins) % 1440;
-    const arrH = String(Math.floor(totalArrMin / 60)).padStart(2, '0');
-    const arrM = String(totalArrMin % 60).padStart(2, '0');
-
-    // Dynamic Pricing Surge Engine:
-    // Peak Morning (07:00-09:30) & Evening (17:30-20:30) cost 20-30% more
-    let timeSurge = 1.0;
-    if ((totalDepMin >= 420 && totalDepMin <= 570) || (totalDepMin >= 1050 && totalDepMin <= 1230)) {
-      timeSurge = 1.25;
-    } else if (totalDepMin >= 1320 || totalDepMin <= 360) {
-      timeSurge = 0.88; // Red-eye / late night discount
+    } 
+    else if (airline.networkTier === "TIER2_AND_SOUTH") {
+      // Air India Express: Connects its preferred hubs
+      const inHub = airline.preferredHubs.includes(originCode) && airline.preferredHubs.includes(destCode);
+      if (inHub) {
+        operatesRoute = true;
+        frequency = isBothMetros ? 2 : 1;
+      }
+    } 
+    else if (airline.networkTier === "METRO_PREMIUM") {
+      // Vistara: Exclusively connects premium metro and leisure hubs
+      const inHub = airline.preferredHubs.includes(originCode) && airline.preferredHubs.includes(destCode);
+      if (inHub) {
+        operatesRoute = true;
+        frequency = isBothMetros ? (3 + (rng() > 0.5 ? 1 : 0)) : 1;
+      }
+    } 
+    else if (airline.networkTier === "METRO_AND_GROWTH") {
+      // Akasa Air: Rapidly expanding network between base hubs
+      const inHub = airline.preferredHubs.includes(originCode) && airline.preferredHubs.includes(destCode);
+      if (inHub) {
+        operatesRoute = true;
+        frequency = isBothMetros ? 2 : 1;
+      }
+    } 
+    else if (airline.networkTier === "REGIONAL_SHORT_HOP") {
+      // Star Air: Regional routes (< 1000 km), never on metro-metro trunk corridors
+      const inHub = airline.preferredHubs.includes(originCode) || airline.preferredHubs.includes(destCode);
+      if (inHub && isShortRegional && !isBothMetros) {
+        operatesRoute = true;
+        frequency = 1 + (rng() > 0.6 ? 1 : 0);
+      }
     }
 
-    const weekendSurge = isWeekend ? 1.15 : 1.0;
-    const finalPrice = Math.round((item.baseFare * timeSurge * weekendSurge) / 50) * 50;
+    if (!operatesRoute || frequency === 0) {
+      return;
+    }
 
-    // Remaining seats fluctuate deterministically per date and flight index
-    const seatsRemaining = 3 + ((dateSeed + index * 17) % 28);
+    // 2. Generate Realistic Timing Spreads & Dynamic Fares per Flight
+    // Distribute flights throughout the day (Morning, Afternoon, Evening, Night)
+    const slotInterval = Math.floor(960 / frequency); // Operational day window = 16 hours (06:00 to 22:00)
 
-    return {
-      flightNumber: item.flightNumber,
-      airline: airline.name,
-      airlineCode: airline.code,
-      aircraft: item.aircraft,
-      origin: `${origin.city} (${origin.code})`,
-      destination: `${destination.city} (${destination.code})`,
-      date,
-      departureTime: item.depTime,
-      arrivalTime: `${arrH}:${arrM}`,
-      duration: durationText,
-      distanceKm,
-      priceINR: finalPrice,
-      availableSeats: seatsRemaining
-    };
+    for (let f = 0; f < frequency; f++) {
+      // Generate departure minute between 05:30 (330m) and 22:30 (1350m)
+      const baseDepMinute = 345 + (f * slotInterval) + Math.floor((rng() * 40) - 20);
+      const safeDepMinute = Math.min(Math.max(baseDepMinute, 330), 1360);
+      const arrMinuteTotal = (safeDepMinute + durationMinutesTotal) % 1440;
+
+      const depHH = String(Math.floor(safeDepMinute / 60)).padStart(2, '0');
+      const depMM = String(safeDepMinute % 60).padStart(2, '0');
+      const arrHH = String(Math.floor(arrMinuteTotal / 60)).padStart(2, '0');
+      const arrMM = String(arrMinuteTotal % 60).padStart(2, '0');
+
+      // Realistic Dynamic Pricing Surge:
+      // Peak morning (07:00 - 09:30) & evening (17:30 - 20:30) slots cost +25%
+      let slotMultiplier = 1.0;
+      if ((safeDepMinute >= 420 && safeDepMinute <= 570) || (safeDepMinute >= 1050 && safeDepMinute <= 1230)) {
+        slotMultiplier = 1.25;
+      } else if (safeDepMinute >= 1300 || safeDepMinute <= 360) {
+        slotMultiplier = 0.88; // Red-eye / late night discount
+      }
+
+      // Distance & Fuel rate fare
+      const calculatedFare = (airline.baseFare + (distanceKm * airline.ratePerKm)) * slotMultiplier * weekendSurge;
+      const roundedFare = Math.round(calculatedFare / 50) * 50;
+
+      // Realistic flight number generation based on airline's range
+      const flightNumOffset = Math.floor(rng() * airline.flightNumberRange);
+      const flightNumber = `${airline.code}-${airline.flightNumberBase + flightNumOffset}`;
+
+      // Pick aircraft based on fleet type
+      const chosenAircraft = airline.aircraft[Math.floor(rng() * airline.aircraft.length)];
+
+      // Seat availability
+      const availableSeats = 2 + Math.floor(rng() * 26);
+
+      flights.push({
+        flightNumber,
+        airline: airline.name,
+        airlineCode: airline.code,
+        carrierType: airline.type,
+        aircraft: chosenAircraft,
+        origin: `${origin.city} (${origin.code})`,
+        destination: `${destination.city} (${destination.code})`,
+        date,
+        departureTime: `${depHH}:${depMM}`,
+        arrivalTime: `${arrHH}:${arrMM}`,
+        duration: durationText,
+        distanceKm,
+        priceINR: roundedFare,
+        availableSeats
+      });
+    }
   });
 
-  // Chronologically sort flights by departure time
+  // Sort chronological by departure time
   flights.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
 
   res.json({
