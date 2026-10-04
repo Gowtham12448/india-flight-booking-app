@@ -2,49 +2,312 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AirBharat - My Bookings</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .bookings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .booking-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-danger-outline:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .btn-cancel-ticket {
+      background: #f59e0b;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-cancel-ticket:hover {
+      background: #d97706;
+    }
+    .btn-delete-record {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-delete-record:hover {
+      background: #dc2626;
+      color: #ffffff;
+    }
+    .booking-record-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 6px solid #10b981;
+      transition: transform 0.2s;
+    }
+    .booking-record-card.cancelled {
+      border-left-color: #ef4444;
+      opacity: 0.85;
+      background: #fafafa;
+    }
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+    .status-pill.confirmed { background: #dcfce7; color: #15803d; }
+    .status-pill.cancelled { background: #fee2e2; color: #dc2626; }
+    .booking-details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px 20px;
+      margin-top: 8px;
+      font-size: 0.88rem;
+      color: #334155;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: #ffffff;
+    }
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">✈️ AirBharat India</div>
-    <div class="nav-links">
-      <a href="/">Search Flights</a>
-      <a href="/my-bookings">Manage Bookings</a>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon">✈</span>
+        <span class="logo-text">AirBharat</span>
+        <span class="tag">Incredible India</span>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Search Flights</a>
+        <a href="/my-bookings" class="active">My Bookings</a>
+      </nav>
     </div>
-  </nav>
+  </header>
 
-  <div class="container">
-    <div class="card">
-      <h2>Active Bookings & PNR Records</h2>
-      <div id="bookings-list">Loading records...</div>
+  <!-- Main Container -->
+  <main class="main-wrapper">
+    <div class="search-card">
+      <div class="bookings-header">
+        <div>
+          <h2>Active Bookings & PNR History</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem;">Manage your domestic itineraries, cancel tickets, or purge booking history</p>
+        </div>
+        <div class="booking-actions">
+          <button id="clear-all-btn" class="btn-danger-outline" style="display: none;">
+            🗑 Clear Entire History
+          </button>
+        </div>
+      </div>
+
+      <div id="bookings-list">
+        <p style="text-align: center; padding: 20px;">Loading your booking history...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Delete / Cancellation In-App Confirmation Modal -->
+  <div id="action-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card confirmation-card" style="max-width: 440px;">
+      <div id="modal-action-icon" class="success-checkmark" style="background: #fee2e2; color: #dc2626;">⚠</div>
+      <h3 id="modal-action-title">Confirm Action</h3>
+      <p id="modal-action-desc" style="color: #64748b; font-size: 0.9rem; margin: 12px 0 20px;">Are you sure?</p>
+
+      <div style="display: flex; gap: 10px;">
+        <button id="modal-cancel-btn" class="btn" style="background: #e2e8f0; color: #334155; flex: 1;">Cancel</button>
+        <button id="modal-confirm-btn" class="btn" style="background: #dc2626; color: #ffffff; flex: 1;">Proceed</button>
+      </div>
     </div>
   </div>
 
   <script>
-    async function loadBookings() {
-      const res = await fetch('/api/bookings');
-      const data = await res.json();
-      const list = document.getElementById('bookings-list');
-      
-      if (!data.data.length) {
-        list.innerHTML = "<p>No active bookings found.</p>";
-        return;
+    document.addEventListener('DOMContentLoaded', () => {
+      const listContainer = document.getElementById('bookings-list');
+      const clearAllBtn = document.getElementById('clear-all-btn');
+      const actionModal = document.getElementById('action-modal');
+      const modalTitle = document.getElementById('modal-action-title');
+      const modalDesc = document.getElementById('modal-action-desc');
+      const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+      const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+      let currentAction = null;
+
+      // 1. Fetch & Render Bookings
+      async function loadBookings() {
+        try {
+          const res = await fetch('/api/bookings');
+          const data = await res.json();
+
+          if (!data.data || data.data.length === 0) {
+            clearAllBtn.style.display = 'none';
+            listContainer.innerHTML = `
+              <div class="empty-state">
+                <span style="font-size: 3rem;">🎫</span>
+                <h3 style="color: #0f172a; margin-top: 10px;">No Booking History Found</h3>
+                <p style="color: #64748b;">You have no active or historical domestic flight tickets.</p>
+                <a href="/" class="btn btn-search" style="display: inline-block; width: auto; padding: 10px 24px;">Search & Book Flights</a>
+              </div>
+            `;
+            return;
+          }
+
+          clearAllBtn.style.display = 'inline-block';
+
+          listContainer.innerHTML = data.data.map(b => {
+            const isConfirmed = b.status === 'CONFIRMED';
+            return `
+              <div class="booking-record-card ${isConfirmed ? '' : 'cancelled'}">
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <h3 style="color: #003366; font-size: 1.15rem;">PNR: ${b.pnr}</h3>
+                    <span class="status-pill ${isConfirmed ? 'confirmed' : 'cancelled'}">${b.status}</span>
+                  </div>
+
+                  <div class="booking-details-grid">
+                    <div><strong>Passenger:</strong> ${b.passengerName} (${b.email})</div>
+                    <div><strong>Flight:</strong> ${b.airline} &bull; ${b.flightNumber}</div>
+                    <div><strong>Route:</strong> ${b.origin} ➔ ${b.destination}</div>
+                    <div><strong>Travel Date:</strong> ${b.date}</div>
+                    <div><strong>Seat Allocated:</strong> ${b.allocatedSeat || 'Standard'}</div>
+                    <div><strong>Meal:</strong> ${b.selectedMeal || 'None'}</div>
+                    <div><strong>Paid:</strong> ₹${b.priceINR} (${b.paymentMethod || 'Card'})</div>
+                    <div><strong>Booked On:</strong> ${new Date(b.bookedAt).toLocaleDateString()}</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-left: 20px;">
+                  ${isConfirmed ? `
+                    <button class="btn-cancel-ticket" onclick="promptCancelTicket('${b.pnr}')">
+                      Cancel Flight
+                    </button>
+                  ` : ''}
+                  <button class="btn-delete-record" onclick="promptDeleteRecord('${b.pnr}')">
+                    Delete Record
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch (err) {
+          listContainer.innerHTML = '<p style="color: #dc2626; text-align: center;">Error retrieving booking records.</p>';
+        }
       }
 
-      list.innerHTML = data.data.map(b => `
-        <div class="flight-card" style="border-left: 5px solid ${b.status === 'CONFIRMED' ? '#28a745' : '#dc3545'}">
-          <div class="flight-info">
-            <h3>PNR: ${b.pnr} <span class="badge">${b.status}</span></h3>
-            <p><strong>Passenger:</strong> ${b.passengerName} (${b.email})</p>
-            <p><strong>Route:</strong> ${b.origin} ➔ ${b.destination}</p>
-            <p><strong>Flight:</strong> ${b.airline} | ${b.flightNumber} | Date: ${b.date}</p>
-            <p><strong>Paid:</strong> ₹${b.priceINR}</p>
-          </div>
-        </div>
-      `).join('');
-    }
-    loadBookings();
+      // 2. Cancellation Handler
+      window.promptCancelTicket = (pnr) => {
+        modalTitle.textContent = `Cancel Flight Booking?`;
+        modalDesc.innerHTML = `Are you sure you want to cancel ticket <strong>${pnr}</strong>? Your status will update to CANCELLED.`;
+        modalConfirmBtn.textContent = 'Yes, Cancel Flight';
+        modalConfirmBtn.style.background = '#f59e0b';
+
+        currentAction = async () => {
+          const res = await fetch(`/api/bookings/${pnr}/cancel`, { method: 'PATCH' });
+          const json = await res.json();
+          if (json.success) {
+            actionModal.style.display = 'none';
+            loadBookings();
+          } else {
+            alert(json.message);
+          }
+        };
+        actionModal.style.display = 'flex';
+      };
+
+      // 3. Delete Record Handler
+      window.promptDeleteRecord = (pnr) => {
+        modalTitle.textContent = `Delete Booking Record?`;
+        modalDesc.innerHTML = `Are you sure you want to permanently delete PNR <strong>${pnr}</strong> from your history? This action cannot be undone.`;
+        modalConfirmBtn.textContent = 'Yes, Delete Record';
+        modalConfirmBtn.style.background = '#dc2626';
+
+        currentAction = async () => {
+          const res = await fetch(`/api/bookings/${pnr}`, { method: 'DELETE' });
+          const json = await res.json();
+          if (json.success) {
+            actionModal.style.display = 'none';
+            loadBookings();
+          } else {
+            alert(json.message);
+          }
+        };
+        actionModal.style.display = 'flex';
+      };
+
+      // 4. Clear All History Handler
+      clearAllBtn.addEventListener('click', () => {
+        modalTitle.textContent = `Clear All Booking History?`;
+        modalDesc.textContent = `This will permanently erase all active and cancelled booking records from your session.`;
+        modalConfirmBtn.textContent = 'Clear Everything';
+        modalConfirmBtn.style.background = '#dc2626';
+
+        currentAction = async () => {
+          const res = await fetch('/api/bookings', { method: 'DELETE' });
+          const json = await res.json();
+          if (json.success) {
+            actionModal.style.display = 'none';
+            loadBookings();
+          } else {
+            alert(json.message);
+          }
+        };
+        actionModal.style.display = 'flex';
+      });
+
+      modalConfirmBtn.addEventListener('click', () => {
+        if (currentAction) currentAction();
+      });
+
+      modalCancelBtn.addEventListener('click', () => {
+        actionModal.style.display = 'none';
+      });
+
+      loadBookings();
+    });
   </script>
 </body>
 </html>
