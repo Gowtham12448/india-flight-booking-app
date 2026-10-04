@@ -1,1 +1,15 @@
-
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: #f4f7f6; color: #333; }
+.navbar { display: flex; justify-content: space-between; background: #003366; padding: 15px 30px; color: white; }
+.navbar a { color: white; text-decoration: none; margin-left: 20px; font-weight: bold; }
+.container { max-width: 900px; margin: 30px auto; padding: 0 15px; }
+.card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+select, input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+.btn { background: #ff6600; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 1rem; width: 100%; font-weight: bold; }
+.btn:hover { background: #e55c00; }
+.flight-card { background: white; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+.flight-card h3 { color: #003366; }
+.badge { background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
