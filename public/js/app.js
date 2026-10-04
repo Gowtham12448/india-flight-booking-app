@@ -1,5 +1,7 @@
 // public/js/app.js
+
 document.addEventListener('DOMContentLoaded', async () => {
+  // DOM References: Main Search
   const originSelect = document.getElementById('origin-select');
   const destSelect = document.getElementById('dest-select');
   const dateInput = document.getElementById('flight-date');
@@ -8,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const resultsContainer = document.getElementById('results');
   const routeSummary = document.getElementById('route-summary');
 
-  // Checkout Modal Elements
+  // DOM References: Checkout Modal
   const modal = document.getElementById('checkout-modal');
   const modalClose = document.getElementById('modal-close');
   const paymentForm = document.getElementById('booking-payment-form');
@@ -16,33 +18,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   const selectedSeatText = document.getElementById('selected-seat-text');
   const payBtn = document.getElementById('pay-confirm-btn');
 
-  // Confirmation Modal Elements
+  // DOM References: Confirmation Modal
   const confModal = document.getElementById('confirmation-modal');
   const confDoneBtn = document.getElementById('conf-done-btn');
 
-  // Airline Logos Registry (High quality CDN brand marks)
+  // Primary High-Resolution Vector CDN Logos
   const AIRLINE_LOGOS = {
-    "indigo": "https://images.seeklogo.com/logo-png/43/1/indigo-airlines-logo-png_seeklogo-431804.png",
-    "airindia": "https://images.seeklogo.com/logo-png/1/2/air-india-logo-png_seeklogo-19195.png",
-    "airindiaexpress": "https://images.seeklogo.com/logo-png/44/1/air-india-express-logo-png_seeklogo-446733.png",
-    "vistara": "https://images.seeklogo.com/logo-png/29/1/vistara-logo-png_seeklogo-299307.png",
-    "akasa": "https://images.seeklogo.com/logo-png/43/1/akasa-air-logo-png_seeklogo-431806.png",
-    "starair": "https://images.seeklogo.com/logo-png/43/1/star-air-india-logo-png_seeklogo-431805.png"
+    airindia: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Air_India_2023.svg",
+    airindiaexpress: "https://upload.wikimedia.org/wikipedia/commons/7/70/Air_India_Express_2023_logo.svg",
+    akasa: "https://upload.wikimedia.org/wikipedia/commons/e/e2/Akasa_Air_Logo.svg",
+    indigo: "https://upload.wikimedia.org/wikipedia/commons/d/d8/IndiGo_Airlines_logo.svg",
+    vistara: "https://upload.wikimedia.org/wikipedia/en/2/22/Vistara_logo.svg",
+    starair: "https://upload.wikimedia.org/wikipedia/commons/4/45/Star_Air_India_Logo.png"
   };
 
-  // State Tracking
+  // Secondary Fallback CDN Mirrors
+  const AIRLINE_FALLBACKS = {
+    airindia: "https://images.seeklogo.com/logo-png/1/2/air-india-logo-png_seeklogo-19195.png",
+    airindiaexpress: "https://images.seeklogo.com/logo-png/44/1/air-india-express-logo-png_seeklogo-446733.png",
+    akasa: "https://images.seeklogo.com/logo-png/43/1/akasa-air-logo-png_seeklogo-431806.png",
+    indigo: "https://images.seeklogo.com/logo-png/43/1/indigo-airlines-logo-png_seeklogo-431804.png",
+    vistara: "https://images.seeklogo.com/logo-png/29/1/vistara-logo-png_seeklogo-299307.png",
+    starair: "https://images.seeklogo.com/logo-png/43/1/star-air-india-logo-png_seeklogo-431805.png"
+  };
+
+  // State Management
   let selectedFlight = null;
-  let selectedSeat = { id: "3B", price: 0 };
+  let selectedSeat = { id: "2B", price: 0 };
   let selectedMeal = { name: "No Meal Service", price: 0 };
 
-  // Set min allowable booking date
+  // Set date constraints: Minimum date is today, default is tomorrow
   const today = new Date().toISOString().split('T')[0];
   dateInput.min = today;
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   dateInput.value = tomorrow.toISOString().split('T')[0];
 
-  // 1. Fetch Airport Directory
+  // Helper: Extract normalized airline key
+  function getAirlineKey(name) {
+    const n = (name || '').toLowerCase();
+    if (n.includes('express')) return 'airindiaexpress';
+    if (n.includes('air india')) return 'airindia';
+    if (n.includes('akasa')) return 'akasa';
+    if (n.includes('indigo')) return 'indigo';
+    if (n.includes('vistara')) return 'vistara';
+    if (n.includes('star')) return 'starair';
+    return 'indigo';
+  }
+
+  // 1. Fetch & Populate Airport Directory
   try {
     const res = await fetch('/api/airports');
     const { data: airports } = await res.json();
@@ -54,31 +78,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     originSelect.innerHTML = options;
     destSelect.innerHTML = options;
-    destSelect.selectedIndex = 1; // Default to BOM
+    destSelect.selectedIndex = 1; // Default destination to BOM
   } catch (err) {
     resultsContainer.innerHTML = '<p style="color: #fff; text-align: center;">Error loading airport directory.</p>';
   }
 
-  // 2. Swap Origin / Destination
+  // 2. Swap Origin & Destination
   swapBtn.addEventListener('click', () => {
     const temp = originSelect.value;
     originSelect.value = destSelect.value;
     destSelect.value = temp;
   });
 
-  // Helper to map airline to logo
-  function getAirlineLogo(name) {
-    const n = name.toLowerCase();
-    if (n.includes('express')) return AIRLINE_LOGOS.airindiaexpress;
-    if (n.includes('air india')) return AIRLINE_LOGOS.airindia;
-    if (n.includes('indigo')) return AIRLINE_LOGOS.indigo;
-    if (n.includes('vistara')) return AIRLINE_LOGOS.vistara;
-    if (n.includes('akasa')) return AIRLINE_LOGOS.akasa;
-    if (n.includes('star')) return AIRLINE_LOGOS.starair;
-    return AIRLINE_LOGOS.indigo;
-  }
-
-  // 3. Search Flights
+  // 3. Search Flights & Render Results
   searchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const from = originSelect.value;
@@ -97,19 +109,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
+      // Display Route Summary Header
       routeSummary.style.display = 'flex';
       routeSummary.innerHTML = `
         <span><strong>${resData.route.origin} ➔ ${resData.route.destination}</strong></span>
         <span>Distance: ${resData.route.distance} &bull; Non-stop: ~${resData.route.duration} &bull; ${resData.count} flights found</span>
       `;
 
+      // Render Dynamic Flight Cards with Official Logos & Fallbacks
       resultsContainer.innerHTML = resData.data.map(f => {
-        const logoUrl = getAirlineLogo(f.airline);
+        const key = getAirlineKey(f.airline);
+        const primaryLogo = AIRLINE_LOGOS[key];
+        const secondaryLogo = AIRLINE_FALLBACKS[key];
+
         return `
           <div class="flight-card">
             <div class="carrier-info">
               <div class="airline-logo-box">
-                <img src="${logoUrl}" alt="${f.airline}" onerror="this.src='https://placehold.co/52x52?text=${f.airlineCode}'">
+                <img 
+                  src="${primaryLogo}" 
+                  alt="${f.airline}" 
+                  loading="lazy"
+                  onerror="this.onerror=null; this.src='${secondaryLogo}';"
+                >
               </div>
               <div class="carrier-text">
                 <h3>${f.airline} <small style="color: #64748b; font-size: 0.85rem;">(${f.flightNumber})</small></h3>
@@ -130,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
       }).join('');
 
-      // Wire Book Now buttons to open Modal
+      // Wire Book Now buttons to open the Checkout Modal
       resultsContainer.querySelectorAll('.btn-book').forEach(button => {
         button.addEventListener('click', (ev) => {
           selectedFlight = JSON.parse(ev.currentTarget.getAttribute('data-flight'));
@@ -155,18 +177,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const seatsLeft = ['A', 'B', 'C'];
       const seatsRight = ['D', 'E', 'F'];
 
-      // Left seats
       seatsLeft.forEach(col => {
         rowDiv.appendChild(createSeatElement(r, col, occupiedSeats));
       });
 
-      // Aisle indicator
       const aisle = document.createElement('div');
       aisle.className = 'seat-aisle';
       aisle.textContent = r;
       rowDiv.appendChild(aisle);
 
-      // Right seats
       seatsRight.forEach(col => {
         rowDiv.appendChild(createSeatElement(r, col, occupiedSeats));
       });
@@ -178,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function createSeatElement(row, col, occupiedSeats) {
     const seatId = `${row}${col}`;
     const seatDiv = document.createElement('div');
-    const isPremium = (row === 1); // Row 1 is XL Extra legroom
+    const isPremium = (row === 1); // Row 1: Extra Legroom
     const isOccupied = occupiedSeats.includes(seatId);
 
     seatDiv.className = `seat ${isPremium ? 'premium' : ''} ${isOccupied ? 'occupied' : ''}`;
@@ -206,9 +225,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 5. Open Checkout Modal
   function openCheckoutModal(flight) {
+    const key = getAirlineKey(flight.airline);
+    const modalLogo = document.getElementById('modal-airline-logo');
+    
+    modalLogo.src = AIRLINE_LOGOS[key];
+    modalLogo.onerror = function() {
+      this.onerror = null;
+      this.src = AIRLINE_FALLBACKS[key];
+    };
+
     document.getElementById('modal-flight-title').textContent = `${flight.airline} (${flight.flightNumber})`;
     document.getElementById('modal-route-sub').textContent = `${flight.origin} ➔ ${flight.destination} on ${flight.date}`;
-    document.getElementById('modal-airline-logo').src = getAirlineLogo(flight.airline);
     document.getElementById('itin-flight-num').textContent = flight.flightNumber;
     document.getElementById('itin-schedule').textContent = `${flight.departureTime} - ${flight.arrivalTime}`;
 
@@ -230,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     modal.style.display = 'none';
   });
 
-  // Meal Choice Click Handlers
+  // 6. Meal Card Selection Handlers
   document.querySelectorAll('.meal-card').forEach(card => {
     card.addEventListener('click', () => {
       document.querySelectorAll('.meal-card').forEach(c => c.classList.remove('selected'));
@@ -246,7 +273,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Update Dynamic Total (Base + Seat + Meal)
+  // 7. Dynamic Fare Recalculation (Base Fare + Seat Surcharge + Meal)
   function updatePayableTotal() {
     if (!selectedFlight) return;
     const total = selectedFlight.priceINR + selectedSeat.price + selectedMeal.price;
@@ -255,7 +282,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     payBtn.textContent = `Pay ₹${total} & Confirm Booking`;
   }
 
-  // Payment Method Tabs Selection
+  // 8. Payment Method Tabs Switching
   document.querySelectorAll('.payment-option').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.payment-option').forEach(t => t.classList.remove('selected'));
@@ -273,7 +300,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // 6. Submit Payment & Show In-App Confirmation Card
+  // 9. Payment Submission & In-App Confirmation Card
   paymentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!selectedFlight) return;
@@ -303,7 +330,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     try {
-      await new Promise(r => setTimeout(r, 800)); // Simulate gateway latency
+      // Simulate real-time payment gateway handshake latency
+      await new Promise(r => setTimeout(r, 800));
 
       const res = await fetch('/api/bookings', {
         method: 'POST',
@@ -315,7 +343,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (data.success) {
         modal.style.display = 'none'; // Close payment form
 
-        // Display In-App Confirmation Card
+        // Populate and display In-App Confirmation Card (No browser alerts)
         document.getElementById('conf-pnr').textContent = data.data.pnr;
         document.getElementById('conf-name').textContent = data.data.passengerName;
         document.getElementById('conf-flight').textContent = `${data.data.airline} (${data.data.flightNumber})`;
@@ -327,10 +355,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         alert('Booking Transaction Failed: ' + data.message);
         payBtn.disabled = false;
+        payBtn.textContent = `Pay ₹${totalAmount} & Confirm Booking`;
       }
     } catch (err) {
-      alert('Communication error with server.');
+      alert('Network error connecting to payment gateway.');
       payBtn.disabled = false;
+      payBtn.textContent = `Pay ₹${totalAmount} & Confirm Booking`;
     }
   });
 
