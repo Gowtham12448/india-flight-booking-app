@@ -24,22 +24,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Primary High-Resolution Vector CDN Logos
   const AIRLINE_LOGOS = {
-    airindia: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Air_India_2023.svg",
+    airindia: "https://www.airindia.com/adobe/dynamicmedia/deliver/dm-aid--3c6a707f-2e38-48d0-ac12-4751c4f554ba/AI_Logo_Red_New.svg",
     airindiaexpress: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmquX8qTvbJIS5MxxkXTegeiAApF2qxT62PJodsMueRg&s=10",
-    akasa: "https://upload.wikimedia.org/wikipedia/commons/e/e2/Akasa_Air_Logo.svg",
-    indigo: "https://upload.wikimedia.org/wikipedia/commons/d/d8/IndiGo_Airlines_logo.svg",
-    vistara: "https://upload.wikimedia.org/wikipedia/en/2/22/Vistara_logo.svg",
-    starair: "https://upload.wikimedia.org/wikipedia/commons/4/45/Star_Air_India_Logo.png"
+    akasa: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo6dM6XqlKgdp66aKN2Y1XSy4GhzBiad_yQXEiuXQBSA&s=10",
+    indigo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6-dPu_os6UAyga-agxGt8TiL1qbeXlLeGWwtkV74bWw&s=10",
+    vistara: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0FWKdoVW7SS0tlzTtRAa-5PIRj204dGVoV5RiWTkM&s",
+    starair: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTml0PEsplqhzBPaDSAy8BxICW-Rv-TBVVl3GtC_iladw&s=10"
   };
 
   // Secondary Fallback CDN Mirrors
   const AIRLINE_FALLBACKS = {
-    airindia: "https://images.seeklogo.com/logo-png/1/2/air-india-logo-png_seeklogo-19195.png",
+    airindia: "https://www.airindia.com/adobe/dynamicmedia/deliver/dm-aid--3c6a707f-2e38-48d0-ac12-4751c4f554ba/AI_Logo_Red_New.svg",
     airindiaexpress: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmquX8qTvbJIS5MxxkXTegeiAApF2qxT62PJodsMueRg&s=10",
-    akasa: "https://images.seeklogo.com/logo-png/43/1/akasa-air-logo-png_seeklogo-431806.png",
-    indigo: "https://images.seeklogo.com/logo-png/43/1/indigo-airlines-logo-png_seeklogo-431804.png",
-    vistara: "https://images.seeklogo.com/logo-png/29/1/vistara-logo-png_seeklogo-299307.png",
-    starair: "https://images.seeklogo.com/logo-png/43/1/star-air-india-logo-png_seeklogo-431805.png"
+    akasa: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo6dM6XqlKgdp66aKN2Y1XSy4GhzBiad_yQXEiuXQBSA&s=10",
+    indigo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6-dPu_os6UAyga-agxGt8TiL1qbeXlLeGWwtkV74bWw&s=10",
+    vistara: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0FWKdoVW7SS0tlzTtRAa-5PIRj204dGVoV5RiWTkM&s",
+    starair: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTml0PEsplqhzBPaDSAy8BxICW-Rv-TBVVl3GtC_iladw&s=10"
   };
 
   // State Management
