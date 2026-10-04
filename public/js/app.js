@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Primary High-Resolution Vector CDN Logos
   const AIRLINE_LOGOS = {
     airindia: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Air_India_2023.svg",
-    airindiaexpress: "https://upload.wikimedia.org/wikipedia/commons/7/70/Air_India_Express_2023_logo.svg",
+    airindiaexpress: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmquX8qTvbJIS5MxxkXTegeiAApF2qxT62PJodsMueRg&s=10",
     akasa: "https://upload.wikimedia.org/wikipedia/commons/e/e2/Akasa_Air_Logo.svg",
     indigo: "https://upload.wikimedia.org/wikipedia/commons/d/d8/IndiGo_Airlines_logo.svg",
     vistara: "https://upload.wikimedia.org/wikipedia/en/2/22/Vistara_logo.svg",
