@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Secondary Fallback CDN Mirrors
   const AIRLINE_FALLBACKS = {
     airindia: "https://images.seeklogo.com/logo-png/1/2/air-india-logo-png_seeklogo-19195.png",
-    airindiaexpress: "https://images.seeklogo.com/logo-png/44/1/air-india-express-logo-png_seeklogo-446733.png",
+    airindiaexpress: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmquX8qTvbJIS5MxxkXTegeiAApF2qxT62PJodsMueRg&s=10",
     akasa: "https://images.seeklogo.com/logo-png/43/1/akasa-air-logo-png_seeklogo-431806.png",
     indigo: "https://images.seeklogo.com/logo-png/43/1/indigo-airlines-logo-png_seeklogo-431804.png",
     vistara: "https://images.seeklogo.com/logo-png/29/1/vistara-logo-png_seeklogo-299307.png",
