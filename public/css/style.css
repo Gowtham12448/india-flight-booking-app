@@ -1,8 +1,10 @@
 /* ==========================================================
-   AirBharat - Indian Tourism Theme, Seat Grid & Meal System
+   AirBharat - Complete Production Design System & Stylesheet
    ========================================================== */
+
 :root {
   --primary: #0a2540;
+  --primary-dark: #06192d;
   --accent: #ff6f00;
   --accent-hover: #e65100;
   --card-bg: rgba(255, 255, 255, 0.98);
@@ -13,13 +15,15 @@
   --seat-selected: #2563eb;
   --seat-premium: #fef08a;
   --seat-occupied: #94a3b8;
+  --success: #16a34a;
+  --danger: #dc2626;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Indian Tourism Pictorial Background */
@@ -34,12 +38,15 @@ body {
   flex-direction: column;
 }
 
-/* Navbar */
+/* Header & Navigation Bar */
 .navbar {
   background: rgba(10, 37, 64, 0.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .nav-container {
@@ -74,6 +81,7 @@ body {
   border-radius: 20px;
   text-transform: uppercase;
   font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .nav-links a {
@@ -82,13 +90,15 @@ body {
   font-size: 0.95rem;
   font-weight: 600;
   margin-left: 24px;
+  transition: color 0.2s ease;
 }
 
-.nav-links a:hover, .nav-links a.active {
+.nav-links a:hover,
+.nav-links a.active {
   color: #ffffff;
 }
 
-/* Hero Section */
+/* Layout Wrappers */
 .main-wrapper {
   max-width: 1100px;
   margin: 30px auto;
@@ -119,7 +129,7 @@ body {
   font-size: 2.3rem;
   font-weight: 800;
   margin-bottom: 8px;
-  text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 .hero-banner p {
@@ -127,7 +137,7 @@ body {
   font-size: 1.05rem;
 }
 
-/* Search Card */
+/* Flight Search Card */
 .search-card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -145,7 +155,9 @@ body {
 }
 
 @media (max-width: 860px) {
-  .form-grid { grid-template-columns: 1fr; }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-group {
@@ -162,7 +174,8 @@ body {
   margin-bottom: 6px;
 }
 
-select, input {
+select,
+input {
   padding: 12px 14px;
   border: 1px solid var(--border-light);
   border-radius: 8px;
@@ -171,9 +184,11 @@ select, input {
   color: var(--text-dark);
   outline: none;
   width: 100%;
+  transition: all 0.2s ease;
 }
 
-select:focus, input:focus {
+select:focus,
+input:focus {
   background: #ffffff;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.12);
@@ -193,6 +208,12 @@ select:focus, input:focus {
   color: var(--primary);
   user-select: none;
   margin-bottom: 2px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.swap-icon:hover {
+  transform: rotate(180deg);
+  background: #e2e8f0;
 }
 
 .btn {
@@ -201,11 +222,12 @@ select:focus, input:focus {
   font-weight: 700;
   cursor: pointer;
   text-align: center;
+  transition: all 0.2s ease;
 }
 
 .btn-search {
   background: var(--accent);
-  color: #fff;
+  color: #ffffff;
   padding: 14px 20px;
   font-size: 1.05rem;
   width: 100%;
@@ -213,8 +235,10 @@ select:focus, input:focus {
 
 .btn-search:hover {
   background: var(--accent-hover);
+  transform: translateY(-1px);
 }
 
+/* Route Summary Bar */
 .route-summary {
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
@@ -228,7 +252,7 @@ select:focus, input:focus {
   align-items: center;
 }
 
-/* Flight Results Cards with Airline Logos */
+/* Flight Results Cards */
 .flight-card {
   background: var(--card-bg);
   border-radius: 12px;
@@ -238,6 +262,12 @@ select:focus, input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
 .carrier-info {
@@ -246,23 +276,33 @@ select:focus, input:focus {
   gap: 16px;
 }
 
+/* Airline Vector Logo Box */
 .airline-logo-box {
-  width: 52px;
-  height: 52px;
+  width: 72px;
+  height: 50px;
   background: #ffffff;
   border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 6px;
+  border-radius: 10px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.flight-card:hover .airline-logo-box {
+  transform: scale(1.04);
 }
 
 .airline-logo-box img {
   max-width: 100%;
   max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
+  display: block;
 }
 
 .carrier-text h3 {
@@ -306,10 +346,14 @@ select:focus, input:focus {
 
 .btn-book {
   background: var(--accent);
-  color: #fff;
+  color: #ffffff;
   padding: 8px 22px;
   font-size: 0.95rem;
   border-radius: 6px;
+}
+
+.btn-book:hover {
+  background: var(--accent-hover);
 }
 
 /* ==========================================================
@@ -359,12 +403,15 @@ select:focus, input:focus {
 }
 
 .modal-logo-img {
-  width: 44px;
+  width: 64px;
   height: 44px;
-  object-fit: contain;
+  background: #ffffff;
   border: 1px solid var(--border-light);
   border-radius: 8px;
-  padding: 4px;
+  padding: 4px 8px;
+  object-fit: contain;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
 }
 
 .close-btn {
@@ -422,9 +469,11 @@ select:focus, input:focus {
   margin-bottom: 14px;
 }
 
-.flex-1 { flex: 1; }
+.flex-1 {
+  flex: 1;
+}
 
-/* 2. Aircraft Seat Map Grid */
+/* Aircraft Seat Map Grid */
 .seat-selection-card {
   background: #f8fafc;
   border: 1px solid var(--border-light);
@@ -507,7 +556,7 @@ select:focus, input:focus {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .seat:hover:not(.occupied) {
@@ -540,7 +589,7 @@ select:focus, input:focus {
   color: var(--text-dark);
 }
 
-/* 3. Meal Selection Grid */
+/* In-flight Meal Selection Grid */
 .meal-options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -549,7 +598,9 @@ select:focus, input:focus {
 }
 
 @media (max-width: 600px) {
-  .meal-options-grid { grid-template-columns: 1fr; }
+  .meal-options-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .meal-card {
@@ -561,10 +612,12 @@ select:focus, input:focus {
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
-.meal-card input { display: none; }
+.meal-card input {
+  display: none;
+}
 
 .meal-card.selected {
   border-color: var(--accent);
@@ -590,7 +643,7 @@ select:focus, input:focus {
   color: var(--accent);
 }
 
-/* 4. Payment Gateway Tabs */
+/* Payment Gateway Tabs */
 .payment-tabs {
   display: flex;
   gap: 8px;
@@ -607,9 +660,12 @@ select:focus, input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.payment-option input { display: none; }
+.payment-option input {
+  display: none;
+}
 
 .payment-option.selected {
   border-color: var(--accent);
@@ -637,7 +693,7 @@ select:focus, input:focus {
 }
 
 .btn-pay {
-  background: #16a34a;
+  background: var(--success);
   color: #ffffff;
   padding: 14px;
   font-size: 1.05rem;
@@ -649,7 +705,7 @@ select:focus, input:focus {
   background: #15803d;
 }
 
-/* Confirmation Card Modal */
+/* In-App Confirmation Card */
 .confirmation-card {
   text-align: center;
   padding: 30px;
@@ -660,7 +716,7 @@ select:focus, input:focus {
   width: 64px;
   height: 64px;
   background: #dcfce7;
-  color: #16a34a;
+  color: var(--success);
   font-size: 2.2rem;
   font-weight: 800;
   line-height: 64px;
@@ -690,4 +746,6 @@ select:focus, input:focus {
   font-size: 0.9rem;
 }
 
-.conf-item:last-child { border-bottom: none; }
+.conf-item:last-child {
+  border-bottom: none;
+}
