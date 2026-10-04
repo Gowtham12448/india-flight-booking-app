@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AirBharat - My Bookings</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">✈️ AirBharat India</div>
+    <div class="nav-links">
+      <a href="/">Search Flights</a>
+      <a href="/my-bookings">Manage Bookings</a>
+    </div>
+  </nav>
 
+  <div class="container">
+    <div class="card">
+      <h2>Active Bookings & PNR Records</h2>
+      <div id="bookings-list">Loading records...</div>
+    </div>
+  </div>
+
+  <script>
+    async function loadBookings() {
+      const res = await fetch('/api/bookings');
+      const data = await res.json();
+      const list = document.getElementById('bookings-list');
+      
+      if (!data.data.length) {
+        list.innerHTML = "<p>No active bookings found.</p>";
+        return;
+      }
+
+      list.innerHTML = data.data.map(b => `
+        <div class="flight-card" style="border-left: 5px solid ${b.status === 'CONFIRMED' ? '#28a745' : '#dc3545'}">
+          <div class="flight-info">
+            <h3>PNR: ${b.pnr} <span class="badge">${b.status}</span></h3>
+            <p><strong>Passenger:</strong> ${b.passengerName} (${b.email})</p>
+            <p><strong>Route:</strong> ${b.origin} ➔ ${b.destination}</p>
+            <p><strong>Flight:</strong> ${b.airline} | ${b.flightNumber} | Date: ${b.date}</p>
+            <p><strong>Paid:</strong> ₹${b.priceINR}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+    loadBookings();
+  </script>
+</body>
+</html>
