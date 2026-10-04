@@ -1,1 +1,26 @@
-
+{
+  "name": "india-flight-booking-app",
+  "version": "1.0.0",
+  "description": "Domestic India Flight Booking Engine for Docker & Jenkins CI/CD",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest --runInBand --detectOpenHandles"
+  },
+  "keywords": ["flight-booking", "nodejs", "express", "docker", "jenkins"],
+  "author": "DevOps Engineer",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
