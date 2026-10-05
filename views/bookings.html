@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AirBharat - My Bookings & E-Tickets</title>
+  <title>AirBharat - Manage Bookings</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
   <style>
-    /* Filter & Search Bar Styling */
     .filter-toolbar {
       background: #f8fafc;
       border: 1px solid var(--border-light);
@@ -23,9 +22,7 @@
     }
 
     @media (max-width: 900px) {
-      .filter-toolbar {
-        grid-template-columns: 1fr;
-      }
+      .filter-toolbar { grid-template-columns: 1fr; }
     }
 
     .filter-toolbar input, .filter-toolbar select {
@@ -39,55 +36,38 @@
     .btn-view-ticket {
       background: #003366;
       color: #ffffff;
-      padding: 7px 14px;
+      padding: 8px 14px;
       border-radius: 6px;
       font-size: 0.82rem;
       font-weight: 700;
       border: none;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      justify-content: center;
-      transition: background 0.2s;
     }
-
-    .btn-view-ticket:hover {
-      background: #002244;
-    }
+    .btn-view-ticket:hover { background: #002244; }
 
     .btn-cancel-ticket {
       background: #f59e0b;
       color: #ffffff;
-      padding: 7px 14px;
+      padding: 8px 14px;
       border-radius: 6px;
       font-size: 0.82rem;
       font-weight: 700;
       border: none;
       cursor: pointer;
-      transition: background 0.2s;
     }
-
-    .btn-cancel-ticket:hover {
-      background: #d97706;
-    }
+    .btn-cancel-ticket:hover { background: #d97706; }
 
     .btn-delete-record {
       background: #fee2e2;
       color: #dc2626;
       border: 1px solid #fca5a5;
-      padding: 7px 14px;
+      padding: 8px 14px;
       border-radius: 6px;
       font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.2s;
     }
-
-    .btn-delete-record:hover {
-      background: #dc2626;
-      color: #ffffff;
-    }
+    .btn-delete-record:hover { background: #dc2626; color: #ffffff; }
 
     .bookings-header {
       display: flex;
@@ -108,11 +88,7 @@
       font-weight: 700;
       cursor: pointer;
     }
-
-    .btn-danger-outline:hover {
-      background: #ef4444;
-      color: #ffffff;
-    }
+    .btn-danger-outline:hover { background: #ef4444; color: #ffffff; }
 
     .booking-record-card {
       background: var(--card-bg);
@@ -124,7 +100,6 @@
       justify-content: space-between;
       align-items: center;
       border-left: 6px solid #10b981;
-      transition: transform 0.2s;
     }
 
     .booking-record-card.cancelled {
@@ -141,7 +116,6 @@
       text-transform: uppercase;
       margin-left: 8px;
     }
-
     .status-pill.confirmed { background: #dcfce7; color: #15803d; }
     .status-pill.cancelled { background: #fee2e2; color: #dc2626; }
 
@@ -154,7 +128,6 @@
       color: #334155;
     }
 
-    /* Boarding Pass / E-Ticket Modal Styles */
     .boarding-pass-card {
       background: #ffffff;
       border-radius: 16px;
@@ -174,12 +147,6 @@
       align-items: center;
     }
 
-    .bp-header .airline-name {
-      font-size: 1.3rem;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-
     .bp-route {
       background: #f8fafc;
       padding: 20px 24px;
@@ -187,7 +154,6 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px dashed #cbd5e1;
-      position: relative;
     }
 
     .bp-airport-code {
@@ -197,16 +163,8 @@
       font-family: 'Space Mono', monospace;
     }
 
-    .bp-airport-city {
-      font-size: 0.85rem;
-      color: #64748b;
-      margin-top: 2px;
-    }
-
-    .bp-flight-plane {
-      color: #f59e0b;
-      font-size: 1.6rem;
-    }
+    .bp-airport-city { font-size: 0.85rem; color: #64748b; margin-top: 2px; }
+    .bp-flight-plane { color: #f59e0b; font-size: 1.6rem; }
 
     .bp-body {
       padding: 24px;
@@ -222,7 +180,6 @@
       font-weight: 700;
       color: #64748b;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .bp-item span {
@@ -243,8 +200,8 @@
 
     .barcode-area {
       font-family: 'Space Mono', monospace;
-      font-size: 1.4rem;
-      letter-spacing: 5px;
+      font-size: 1.3rem;
+      letter-spacing: 4px;
       color: #1e293b;
       background: #f1f5f9;
       padding: 6px 14px;
@@ -259,27 +216,14 @@
     }
 
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      #ticket-modal, #ticket-modal * {
-        visibility: visible;
-      }
-      #ticket-modal {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: transparent;
-      }
-      .print-btn-group, .close-btn {
-        display: none !important;
-      }
+      body * { visibility: hidden; }
+      #ticket-modal, #ticket-modal * { visibility: visible; }
+      #ticket-modal { position: absolute; left: 0; top: 0; width: 100%; background: transparent; }
+      .print-btn-group, .close-btn { display: none !important; }
     }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
   <header class="navbar">
     <div class="nav-container">
       <div class="logo">
@@ -294,7 +238,6 @@
     </div>
   </header>
 
-  <!-- Main Container -->
   <main class="main-wrapper">
     <div class="search-card">
       <div class="bookings-header">
@@ -309,16 +252,14 @@
         </div>
       </div>
 
-      <!-- Realtime Search & Filter Controls -->
+      <!-- Filters -->
       <div class="filter-toolbar">
         <input type="text" id="search-input" placeholder="🔍 Search PNR, Passenger, Flight, Route...">
-
         <select id="status-filter">
           <option value="ALL">Status: All</option>
           <option value="CONFIRMED">Status: Confirmed</option>
           <option value="CANCELLED">Status: Cancelled</option>
         </select>
-
         <select id="airline-filter">
           <option value="ALL">Airline: All</option>
           <option value="IndiGo">IndiGo</option>
@@ -328,7 +269,6 @@
           <option value="Akasa Air">Akasa Air</option>
           <option value="Star Air">Star Air</option>
         </select>
-
         <select id="sort-filter">
           <option value="NEWEST">Sort: Newest First</option>
           <option value="OLDEST">Sort: Oldest First</option>
@@ -338,23 +278,20 @@
         </select>
       </div>
 
-      <!-- Filter Metrics Summary -->
       <div id="filter-metrics" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px; font-weight: 600;"></div>
-
-      <!-- Bookings List Output -->
       <div id="bookings-list">
         <p style="text-align: center; padding: 20px;">Loading your booking history...</p>
       </div>
     </div>
   </main>
 
-  <!-- Digital Boarding Pass / E-Ticket Modal -->
+  <!-- Digital Boarding Pass Modal -->
   <div id="ticket-modal" class="modal-backdrop" style="display: none;">
     <div class="boarding-pass-card">
       <div class="bp-header">
         <div>
-          <span style="font-size: 0.72rem; letter-spacing: 1px; opacity: 0.85; text-transform: uppercase;">BOARDING PASS / ITINERARY</span>
-          <div class="airline-name" id="ticket-airline">IndiGo</div>
+          <span style="font-size: 0.72rem; letter-spacing: 1px; opacity: 0.85; text-transform: uppercase;">BOARDING PASS</span>
+          <div class="airline-name" id="ticket-airline" style="font-size: 1.3rem; font-weight: 800;">IndiGo</div>
         </div>
         <button id="ticket-close" class="close-btn" style="color: #ffffff;">&times;</button>
       </div>
@@ -377,7 +314,7 @@
           <span id="ticket-passenger">--</span>
         </div>
         <div class="bp-item">
-          <label>Booking Reference (PNR)</label>
+          <label>Booking PNR</label>
           <span id="ticket-pnr" style="color: #003366; font-family: 'Space Mono', monospace;">--</span>
         </div>
         <div class="bp-item">
@@ -385,7 +322,7 @@
           <span id="ticket-flight-no">--</span>
         </div>
         <div class="bp-item">
-          <label>Date of Departure</label>
+          <label>Date</label>
           <span id="ticket-date">--</span>
         </div>
         <div class="bp-item">
@@ -401,7 +338,7 @@
           <span id="ticket-meal">--</span>
         </div>
         <div class="bp-item">
-          <label>Fare Paid</label>
+          <label>Total Fare</label>
           <span id="ticket-fare">₹0</span>
         </div>
         <div class="bp-item">
@@ -412,7 +349,7 @@
 
       <div class="bp-footer">
         <div>
-          <span style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Electronic Ticket Barcode</span>
+          <span style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Barcode</span>
           <div class="barcode-area" id="ticket-barcode">|||| | | |||| ||</div>
         </div>
         <div style="text-align: right; font-size: 0.8rem; color: #64748b;">
@@ -428,7 +365,7 @@
     </div>
   </div>
 
-  <!-- Delete / Cancellation In-App Confirmation Modal -->
+  <!-- In-App Confirmation / Action Modal -->
   <div id="action-modal" class="modal-backdrop" style="display: none;">
     <div class="modal-card confirmation-card" style="max-width: 440px;">
       <div id="modal-action-icon" class="success-checkmark" style="background: #fee2e2; color: #dc2626;">⚠</div>
@@ -445,6 +382,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       let masterBookings = [];
+      let pendingActionCallback = null;
 
       const listContainer = document.getElementById('bookings-list');
       const clearAllBtn = document.getElementById('clear-all-btn');
@@ -454,7 +392,6 @@
       const sortFilter = document.getElementById('sort-filter');
       const filterMetrics = document.getElementById('filter-metrics');
 
-      // Modals
       const ticketModal = document.getElementById('ticket-modal');
       const ticketClose = document.getElementById('ticket-close');
       const actionModal = document.getElementById('action-modal');
@@ -463,9 +400,7 @@
       const modalConfirmBtn = document.getElementById('modal-confirm-btn');
       const modalCancelBtn = document.getElementById('modal-cancel-btn');
 
-      let currentAction = null;
-
-      // 1. Fetch Master Bookings
+      // 1. Fetch & Store Bookings
       async function loadBookings() {
         try {
           const res = await fetch('/api/bookings');
@@ -477,14 +412,13 @@
         }
       }
 
-      // 2. Realtime Filter, Search, and Sort Engine
+      // 2. Filter & Render
       function applyFiltersAndRender() {
         const query = searchInput.value.trim().toLowerCase();
         const statusVal = statusFilter.value;
         const airlineVal = airlineFilter.value;
         const sortVal = sortFilter.value;
 
-        // Filter
         let filtered = masterBookings.filter(b => {
           const matchQuery = 
             b.pnr.toLowerCase().includes(query) ||
@@ -496,11 +430,9 @@
 
           const matchStatus = (statusVal === 'ALL') || (b.status === statusVal);
           const matchAirline = (airlineVal === 'ALL') || (b.airline.toLowerCase() === airlineVal.toLowerCase());
-
           return matchQuery && matchStatus && matchAirline;
         });
 
-        // Sort
         filtered.sort((a, b) => {
           if (sortVal === 'NEWEST') return new Date(b.bookedAt) - new Date(a.bookedAt);
           if (sortVal === 'OLDEST') return new Date(a.bookedAt) - new Date(b.bookedAt);
@@ -510,17 +442,15 @@
           return 0;
         });
 
-        // Update Counter
         filterMetrics.textContent = `Showing ${filtered.length} of ${masterBookings.length} total bookings`;
         clearAllBtn.style.display = masterBookings.length > 0 ? 'inline-block' : 'none';
 
-        // Render List
         if (filtered.length === 0) {
           listContainer.innerHTML = `
             <div style="text-align: center; padding: 40px 20px;">
               <span style="font-size: 2.5rem;">🔍</span>
               <h3 style="color: #003366; margin-top: 10px;">No Matching Bookings</h3>
-              <p style="color: #64748b;">No flight tickets match your selected search or filter criteria.</p>
+              <p style="color: #64748b;">No flight tickets match your search or filter criteria.</p>
             </div>
           `;
           return;
@@ -535,7 +465,6 @@
                   <h3 style="color: #003366; font-size: 1.15rem;">PNR: ${b.pnr}</h3>
                   <span class="status-pill ${isConfirmed ? 'confirmed' : 'cancelled'}">${b.status}</span>
                 </div>
-
                 <div class="booking-details-grid">
                   <div><strong>Passenger:</strong> ${b.passengerName} (${b.email})</div>
                   <div><strong>Flight:</strong> ${b.airline} &bull; ${b.flightNumber}</div>
@@ -547,17 +476,16 @@
                   <div><strong>Booked On:</strong> ${new Date(b.bookedAt).toLocaleDateString()}</div>
                 </div>
               </div>
-
               <div style="display: flex; flex-direction: column; gap: 8px; margin-left: 20px;">
-                <button class="btn-view-ticket" onclick="viewBoardingPass('${b.pnr}')">
+                <button class="btn-view-ticket" data-action="view" data-pnr="${b.pnr}">
                   👁 View Ticket
                 </button>
                 ${isConfirmed ? `
-                  <button class="btn-cancel-ticket" onclick="promptCancelTicket('${b.pnr}')">
+                  <button class="btn-cancel-ticket" data-action="cancel" data-pnr="${b.pnr}">
                     Cancel Flight
                   </button>
                 ` : ''}
-                <button class="btn-delete-record" onclick="promptDeleteRecord('${b.pnr}')">
+                <button class="btn-delete-record" data-action="delete" data-pnr="${b.pnr}">
                   Delete Record
                 </button>
               </div>
@@ -566,18 +494,28 @@
         }).join('');
       }
 
-      // Event Listeners for Filters & Search
-      searchInput.addEventListener('input', applyFiltersAndRender);
-      statusFilter.addEventListener('change', applyFiltersAndRender);
-      airlineFilter.addEventListener('change', applyFiltersAndRender);
-      sortFilter.addEventListener('change', applyFiltersAndRender);
+      // 3. Event Delegation for Action Buttons (View, Cancel, Delete)
+      listContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
 
-      // 3. View E-Boarding Pass Modal
-      window.viewBoardingPass = (pnr) => {
+        const action = btn.getAttribute('data-action');
+        const pnr = btn.getAttribute('data-pnr');
+
+        if (action === 'view') {
+          openTicketModal(pnr);
+        } else if (action === 'cancel') {
+          triggerCancelFlow(pnr);
+        } else if (action === 'delete') {
+          triggerDeleteFlow(pnr);
+        }
+      });
+
+      // 4. Open Boarding Pass Modal
+      function openTicketModal(pnr) {
         const b = masterBookings.find(item => item.pnr === pnr);
         if (!b) return;
 
-        // Parse airport codes
         const originCode = b.origin.match(/\(([A-Z]{3})\)/)?.[1] || "DEP";
         const destCode = b.destination.match(/\(([A-Z]{3})\)/)?.[1] || "ARR";
         const originCity = b.origin.split('(')[0].trim();
@@ -598,85 +536,106 @@
         document.getElementById('ticket-fare').textContent = `₹${b.priceINR}`;
         document.getElementById('ticket-status').textContent = b.status;
         document.getElementById('ticket-status').style.color = b.status === 'CONFIRMED' ? '#15803d' : '#dc2626';
-
-        // Simulated Barcode
         document.getElementById('ticket-barcode').textContent = `||| ${b.pnr} | ${b.flightNumber} ||||`;
 
         ticketModal.style.display = 'flex';
-      };
+      }
 
       ticketClose.addEventListener('click', () => {
         ticketModal.style.display = 'none';
       });
 
-      // 4. Cancel Ticket Handler
-      window.promptCancelTicket = (pnr) => {
+      // 5. Cancel Booking Flow
+      function triggerCancelFlow(pnr) {
         modalTitle.textContent = `Cancel Flight Booking?`;
         modalDesc.innerHTML = `Are you sure you want to cancel ticket <strong>${pnr}</strong>? Your status will update to CANCELLED.`;
         modalConfirmBtn.textContent = 'Yes, Cancel Flight';
         modalConfirmBtn.style.background = '#f59e0b';
 
-        currentAction = async () => {
+        pendingActionCallback = async () => {
+          modalConfirmBtn.disabled = true;
+          modalConfirmBtn.textContent = 'Cancelling...';
           const res = await fetch(`/api/bookings/${pnr}/cancel`, { method: 'PATCH' });
           const json = await res.json();
+          modalConfirmBtn.disabled = false;
+          actionModal.style.display = 'none';
           if (json.success) {
-            actionModal.style.display = 'none';
-            loadBookings();
+            await loadBookings();
           } else {
             alert(json.message);
           }
         };
-        actionModal.style.display = 'flex';
-      };
 
-      // 5. Delete Record Handler
-      window.promptDeleteRecord = (pnr) => {
+        actionModal.style.display = 'flex';
+      }
+
+      // 6. Delete Single Record Flow
+      function triggerDeleteFlow(pnr) {
         modalTitle.textContent = `Delete Booking Record?`;
-        modalDesc.innerHTML = `Are you sure you want to permanently delete PNR <strong>${pnr}</strong> from your history?`;
+        modalDesc.innerHTML = `Are you sure you want to delete PNR <strong>${pnr}</strong> from history? This cannot be undone.`;
         modalConfirmBtn.textContent = 'Yes, Delete Record';
         modalConfirmBtn.style.background = '#dc2626';
 
-        currentAction = async () => {
+        pendingActionCallback = async () => {
+          modalConfirmBtn.disabled = true;
+          modalConfirmBtn.textContent = 'Deleting...';
           const res = await fetch(`/api/bookings/${pnr}`, { method: 'DELETE' });
           const json = await res.json();
+          modalConfirmBtn.disabled = false;
+          actionModal.style.display = 'none';
           if (json.success) {
-            actionModal.style.display = 'none';
-            loadBookings();
+            await loadBookings();
           } else {
             alert(json.message);
           }
         };
-        actionModal.style.display = 'flex';
-      };
 
-      // 6. Clear All History Handler
+        actionModal.style.display = 'flex';
+      }
+
+      // 7. Clear All History Flow
       clearAllBtn.addEventListener('click', () => {
         modalTitle.textContent = `Clear All Booking History?`;
         modalDesc.textContent = `This will permanently erase all active and cancelled booking records from your session.`;
         modalConfirmBtn.textContent = 'Clear Everything';
         modalConfirmBtn.style.background = '#dc2626';
 
-        currentAction = async () => {
+        pendingActionCallback = async () => {
+          modalConfirmBtn.disabled = true;
+          modalConfirmBtn.textContent = 'Purging...';
           const res = await fetch('/api/bookings', { method: 'DELETE' });
           const json = await res.json();
+          modalConfirmBtn.disabled = false;
+          actionModal.style.display = 'none';
           if (json.success) {
-            actionModal.style.display = 'none';
-            loadBookings();
+            await loadBookings();
           } else {
             alert(json.message);
           }
         };
+
         actionModal.style.display = 'flex';
       });
 
+      // Modal Confirmation Trigger
       modalConfirmBtn.addEventListener('click', () => {
-        if (currentAction) currentAction();
+        if (typeof pendingActionCallback === 'function') {
+          pendingActionCallback();
+        }
       });
 
       modalCancelBtn.addEventListener('click', () => {
         actionModal.style.display = 'none';
+        pendingActionCallback = null;
       });
 
+      // Filter input change events
+      searchInput.addEventListener('input', applyFiltersAndRender);
+      statusFilter.addEventListener('change', applyFiltersAndRender);
+      airlineFilter.addEventListener('change', applyFiltersAndRender);
+      sortFilter.addEventListener('change', applyFiltersAndRender);
+
+      // Initial load
       loadBookings();
     });
   </script>
